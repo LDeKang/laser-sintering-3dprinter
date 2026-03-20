@@ -305,6 +305,239 @@ board = marlin_STM32F407VE
 ; 自动下载: STM32duino + HAL库
 ```
 
+---
+
+# Marlin 2.1.2.1 完整文件结构
+
+## 根目录
+```
+Marlin-2.1.2.1-src/
+├── platformio.ini              ← PlatformIO编译配置
+├── Makefile                    ← Make编译脚本
+├── README.md                   ← 项目说明
+│
+├── Marlin/                     ← 【核心源码目录】
+│   ├── Configuration.h         ← 主配置文件
+│   ├── Configuration_adv.h     ← 高级配置文件
+│   ├── Version.h               ← 版本信息
+│   └── src/                    ← 源代码目录
+│
+├── buildroot/                  ← 构建工具和资源
+│   ├── share/                  ← 共享资源
+│   │   ├── PlatformIO/         ← PlatformIO支持文件
+│   │   │   ├── scripts/        ← 编译脚本
+│   │   │   └── variants/       ← 各主板变体定义
+│   │   │       └── MARLIN_F407VE/  ← STM32F407VE配置
+│   │   ├── fonts/              ← 字体资源
+│   │   └── extras/             ← 额外工具
+│   └── tests/                  ← 测试代码
+│
+├── config/                     ← 示例配置
+├── docker/                     ← Docker支持
+├── docs/                       ← 文档
+└── ini/                        ← PlatformIO环境配置
+    ├── stm32f4.ini             ← STM32F4系列配置
+    ├── features.ini            ← 功能特性配置
+    └── avr.ini, lpc176x.ini... ← 其他平台配置
+```
+
+## 核心源码目录 (Marlin/src/)
+
+```
+Marlin/src/
+│
+├── MarlinCore.cpp/.h           ← 【主程序入口】setup() & loop()
+│
+├── core/                       ← 核心基础设施
+│   ├── boards.h                ← 主板定义列表
+│   ├── types.h                 ← 基础类型定义
+│   ├── serial.h/cpp            ← 串口通信
+│   └── utility.cpp             ← 工具函数
+│
+├── HAL/                        ← 【硬件抽象层 - 关键目录】
+│   ├── HAL.h                   ← HAL通用接口
+│   ├── platforms.h             ← 平台检测
+│   ├── shared/                 ← 共享HAL代码
+│   │   ├── eeprom_api.cpp      ← EEPROM接口
+│   │   └── servo.cpp           ← 舵机控制
+│   │
+│   ├── STM32/                  ← 【STM32平台实现】★
+│   │   ├── HAL.cpp/.h          ← STM32 HAL主文件
+│   │   ├── fastio.cpp/.h       ← 快速GPIO操作
+│   │   ├── tim.cpp             ← 定时器/PWM实现
+│   │   ├── adc.cpp             ← ADC温度采集
+│   │   ├── spi.cpp             ← SPI通信
+│   │   ├── MarlinSerial.cpp    ← 串口实现
+│   │   ├── eeprom_flash.cpp    ← Flash模拟EEPROM
+│   │   └── tft/                ← TFT屏幕驱动
+│   │       ├── tft_spi.cpp     ← SPI方式TFT
+│   │       └── xpt2046.cpp     ← 触摸屏驱动
+│   │
+│   ├── AVR/                    ← AVR平台(Arduino Mega)
+│   ├── LPC1768/                ← LPC1768平台(Smoothieboard)
+│   ├── ESP32/                  ← ESP32平台
+│   └── ...                     ← 其他平台
+│
+├── gcode/                      ← 【G-code解析层】
+│   ├── gcode.cpp/.h            ← G-code主解析器
+│   ├── parser.cpp/.h           ← 参数解析器
+│   ├── queue.cpp/.h            ← G-code队列
+│   │
+│   ├── motion/                 ← 运动类G-code
+│   │   ├── G0_G1.cpp           ← 直线移动
+│   │   ├── G28.cpp             ← 回零
+│   │   └── G2_G3.cpp           ← 圆弧插补
+│   │
+│   ├── control/                ← 控制类G-code
+│   │   ├── M3-M5.cpp           ← 【激光/主轴控制】★
+│   │   ├── M17_M18_M84.cpp     ← 电机使能/禁用
+│   │   └── M80_M81.cpp         ← 电源控制
+│   │
+│   ├── temp/                   ← 温度类G-code
+│   │   ├── M104_M109.cpp       ← 热端温度
+│   │   └── M140_M190.cpp       ← 热床温度
+│   │
+│   ├── config/                 ← 配置类G-code
+│   │   └── M92.cpp             ← 设置步进数
+│   │
+│   └── feature/                ← 特性类G-code
+│       └── trinamic/           ← TMC驱动配置
+│           ├── M122.cpp        ← 诊断信息
+│           └── M906.cpp        ← 设置电流
+│
+├── module/                     ← 【核心功能模块】
+│   ├── motion.cpp/.h           ← 运动控制主模块
+│   ├── planner.cpp/.h          ← 【运动规划器】★
+│   ├── stepper/                ← 步进电机控制
+│   │   ├── indirection.cpp     ← 步进信号分发
+│   │   ├── trinamic.cpp        ← TMC驱动管理
+│   │   └── TMC26X.cpp          ← TMC26X驱动支持
+│   │
+│   ├── endstops.cpp/.h         ← 限位开关处理
+│   ├── probe.cpp/.h            ← 探针控制
+│   ├── servo.cpp/.h            ← 舵机控制
+│   └── thermistor/             ← 热敏电阻表
+│       └── thermistor_*.h      ← 各种型号热敏电阻
+│
+├── feature/                    ← 【可选功能特性】
+│   ├── cutter/                 ← 【激光/刀具控制】★
+│   │   └── cutter.cpp/.h       ← 激光功率控制
+│   │
+│   ├── babystep.cpp            ← 微步调整
+│   ├── bltouch.cpp             ← BLTouch探针
+│   ├── caselight.cpp           ← 机箱照明
+│   ├── controllerfan.cpp       ← 控制器风扇
+│   ├── filament/               ← 耗材相关
+│   ├── bedlevel/               ← 床面调平
+│   │   ├── abl/                ← 自动调平
+│   │   └── ubl/                ← 统一床面调平
+│   │
+│   └── powerloss.cpp           ← 断电续打
+│
+├── lcd/                        ← 【显示和用户界面】
+│   ├── marlinui.cpp/.h         ← UI主模块
+│   ├── menu/                   ← 菜单系统
+│   │   ├── menu_main.cpp       ← 主菜单
+│   │   └── menu_configuration.cpp
+│   │
+│   ├── tft/                    ← TFT屏幕支持
+│   │   ├── tft.cpp             ← TFT核心驱动
+│   │   ├── touch.cpp           ← 触摸处理
+│   │   └── ui_480x320.cpp      ← 480x320界面
+│   │
+│   ├── extui/                  ← 外部UI接口
+│   │   └── mks_ui/             ← MKS屏幕UI
+│   │       └── draw_*.cpp      ← 各界面绘制
+│   │
+│   └── language/               ← 多语言支持
+│       └── language_*.h        ← 各语言文件
+│
+├── pins/                       ← 【引脚定义】
+│   ├── pins.h                  ← 引脚主文件
+│   ├── stm32f4/                ← STM32F4系列引脚
+│   │   └── pins_MKS_ROBIN_NANO_V3_1.h  ← 【我们的主板】★
+│   ├── stm32f1/                ← STM32F1系列
+│   ├── mega/                   ← ATmega系列
+│   └── ...                     ← 其他平台
+│
+├── sd/                         ← 【SD卡文件系统】
+│   ├── cardreader.cpp/.h       ← SD卡读取
+│   ├── Sd2Card.cpp/.h          ← SD卡底层驱动
+│   └── usb_flashdrive/         ← U盘支持
+│
+├── inc/                        ← 包含文件
+│   ├── MarlinConfig.h          ← 配置总入口
+│   ├── Conditionals_*.h        ← 条件编译
+│   └── SanityCheck.h           ← 配置检查
+│
+└── libs/                       ← 第三方库
+    ├── buzzer.cpp              ← 蜂鸣器
+    ├── crc16.cpp               ← CRC校验
+    └── heatshrink/             ← 数据压缩
+```
+
+## 关键文件调用链示例
+
+### 激光控制调用链
+```
+G-code输入: M3 S128
+    ↓
+gcode/control/M3-M5.cpp  →  gcode_M3()
+    ↓
+feature/cutter/cutter.cpp  →  set_power(128)
+    ↓
+HAL/STM32/tim.cpp  →  analogWrite(pin, 128)
+    ↓
+STM32duino HAL  →  TIM3->CCR1 = 128
+    ↓
+硬件PWM输出
+```
+
+### 步进控制调用链
+```
+G-code输入: G1 X10 F3000
+    ↓
+gcode/motion/G0_G1.cpp
+    ↓
+module/planner.cpp  →  planner.buffer_line()
+    ↓
+module/stepper/indirection.cpp  →  stepper ISR
+    ↓
+HAL/STM32/fastio.cpp  →  digitalWrite(STEP_PIN, HIGH/LOW)
+    ↓
+GPIO寄存器操作
+```
+
+### TMC2209配置调用链
+```
+G-code输入: M906 X800
+    ↓
+gcode/feature/trinamic/M906.cpp
+    ↓
+module/stepper/trinamic.cpp  →  stepperX.rms_current(800)
+    ↓
+TMCStepper库  →  UART通信
+    ↓
+HAL/STM32/MarlinSerial.cpp  →  Serial1.write()
+    ↓
+USART1->DR = data
+```
+
+## 编译配置相关
+
+```
+ini/
+├── stm32f4.ini                 ← STM32F4编译环境
+│   ├── env:mks_robin_nano_v3
+│   └── env:mks_robin_nano_v3_usb_flash_drive
+│
+├── features.ini                ← 功能特性开关
+└── platformio.ini              ← 主配置文件
+    └── default_envs = mks_robin_nano_v3_usb_flash_drive
+```
+
+---
+
 ## 下一步建议
 
 1. **先跑通基础**: 烧录Blink，确认板子活着
