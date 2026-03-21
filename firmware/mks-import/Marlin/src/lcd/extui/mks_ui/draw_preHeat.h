@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,11 +25,13 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-void lv_draw_z_offset_wizard();
-void refresh_wizard_pos();
-void disp_cur_wizard_pos();
-void disp_move_wizard_dist();
-void lv_clear_z_offset_wizard();
+void lv_draw_preHeat();
+void lv_clear_preHeat();
+void disp_temp_type();
+void disp_step_heat();
+void disp_desire_temp();
+void disp_ext_heart();
+void disp_add_dec();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
