@@ -8,7 +8,7 @@
 
 ### 1. 主板配置 (Configuration.h)
 ```cpp
-#define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0  // V3兼容V2引脚
+#define MOTHERBOARD BOARD_MKS_ROBIN_NANO_V3  // MKS Robin Nano V3 for SLS
 #define STRING_CONFIG_H_AUTHOR "(SLS Laser Sintering, Claw)"
 ```
 
@@ -20,10 +20,10 @@
 #define SPINDLE_LASER_FREQUENCY 1000  // 1kHz
 ```
 
-### 3. 激光引脚定义 (pins_BTT_SKR_MINI_E3_common.h)
+### 3. 激光引脚定义 (pins_MKS_ROBIN_NANO_V3_common.h)
 ```cpp
-#define SPINDLE_LASER_ENA_PIN   PC8   // 原HE0引脚
-#define SPINDLE_LASER_PWM_PIN   PC8   // 原HE0引脚
+#define SPINDLE_LASER_ENA_PIN   PE5   // HEATER1 - 激光使能
+#define SPINDLE_LASER_PWM_PIN   PE5   // HEATER1 - 激光PWM
 ```
 
 ### 4. 热端改造
@@ -45,20 +45,20 @@
 
 ## 硬件连接参考
 
-### SKR Mini E3 V3.0 引脚分配 (SLS模式)
+### MKS Robin Nano V3 引脚分配 (SLS模式)
 
 | 功能 | 引脚 | 备注 |
 |------|------|------|
-| X_STEP | PB13 | XY扫描 |
-| X_DIR | PB12 | |
-| Y_STEP | PB10 | XY扫描 |
-| Y_DIR | PB2 | |
-| Z_STEP | PB0 | 成型平台升降 |
-| Z_DIR | PC5 | |
-| E0_STEP | PB3 | **铺料电机** |
-| E0_DIR | PB4 | |
-| 激光PWM | PC8 | **原HE0，10W激光驱动** |
-| 激光使能 | PC8 | 与PWM共用 |
+| X_STEP | PE3 | XY扫描 |
+| X_DIR | PE2 | |
+| Y_STEP | PE0 | XY扫描 |
+| Y_DIR | PB9 | |
+| Z_STEP | PB5 | 成型平台升降 |
+| Z_DIR | PB4 | |
+| E0_STEP | PD6 | **铺料电机** |
+| E0_DIR | PD3 | |
+| 激光PWM | PE5 | **原HEATER1，10W激光驱动** |
+| 激光使能 | PE5 | 与PWM共用 |
 
 ---
 
@@ -81,7 +81,7 @@
    - 验证无编译错误
 
 2. **硬件测试**
-   - 上传固件到SKR Mini E3 V3
+   - 上传固件到MKS Robin Nano V3
    - 测试激光PWM输出（示波器/万用表）
    - 测试E轴铺料电机运动
    - 测试XY扫描运动
