@@ -136,6 +136,7 @@
 // Heaters / Fans
 //
 // SLS: HEATER_0_PIN 改为激光控制
+#define HEATER_0_PIN                        PE5   // SLS: 虚拟定义，实际用于激光控制
 #define SPINDLE_LASER_ENA_PIN               PE5   // HEATER1 - 激光使能
 #define SPINDLE_LASER_PWM_PIN               PE5   // HEATER1 - 激光PWM
 #define HEATER_1_PIN                        PB0   // HEATER2

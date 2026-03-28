@@ -69,7 +69,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(SLS Laser Sintering, Claw)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(MKS Robin Nano V3 FDM, Restored from SLS)" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -487,7 +487,7 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  *
  */
-#define TEMP_SENSOR_0 998  // SLS: 使用虚拟温度传感器（无热端）
+#define TEMP_SENSOR_0 1  // FDM: 100kΩ EPCOS热敏电阻（标准热端）
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -737,10 +737,10 @@
  * details can be tuned in Configuration_adv.h
  */
 
-//#define THERMAL_PROTECTION_HOTENDS // SLS: 禁用热端热保护（使用虚拟传感器）
+#define THERMAL_PROTECTION_HOTENDS // FDM: 启用热端热保护
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
-#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
-#define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
+//#define THERMAL_PROTECTION_CHAMBER // Disable chamber thermal protection
+//#define THERMAL_PROTECTION_COOLER  // Disable cooler thermal protection (was for laser)
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -927,8 +927,8 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-// SLS: E轴改为铺料电机 (T8丝杆 2mm螺距, 16细分 = 1600 steps/mm)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 1600 }
+// FDM: E轴为标准挤出机 (典型值 93 steps/mm for BMG挤出机，或根据实际挤出机调整)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 93 }
 
 /**
  * Default Max Feed Rate (mm/s)
